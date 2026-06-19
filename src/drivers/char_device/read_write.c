@@ -1,6 +1,8 @@
 #include "drivers/char_device/read_write.h"
 #include "drivers/char_device/tui_device.h"
 
+char_device_t console;
+
 void (*init_char_device)(char_device_t* dev, ...) = NULL;
 void (*close_char_device)(char_device_t* dev) = NULL;
 

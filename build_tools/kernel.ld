@@ -27,6 +27,15 @@ SECTIONS {
         KEEP(*(.limine_requests_end))
     } :rodata
 
+    /* Test-case registry (ktest). Empty in normal builds; populated only when
+       tests/kernel/*.c is compiled in (the `test-kernel` target). */
+    .ktests : {
+        . = ALIGN(8);
+        __start_ktests = .;
+        KEEP(*(.ktests))
+        __stop_ktests = .;
+    } :rodata
+
     . = ALIGN(CONSTANT(MAXPAGESIZE));
 
     .data : {

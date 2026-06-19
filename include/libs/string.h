@@ -8,7 +8,9 @@
 #include "libs/errorno.h"
 
 
+#ifndef RSIZE_MAX
 #define RSIZE_MAX ((size_t)(-1) >> 1)
+#endif
 
 char* strcpy(char* restrict dest, const char* restrict src);
 char* strncpy(char* restrict dest, const char* restrict src, size_t n);

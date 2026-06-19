@@ -16,6 +16,7 @@ long long int strtoll(const char* restrict nptr, char** restrict endptr, int bas
 unsigned long int strtoul(const char* restrict nptr, char** restrict endptr, int base);
 unsigned long long int strtoull(const char* restrict nptr,
                                 char** restrict endptr, int base);
+char* itoa(int value, char* str, int base);
 
 [[noreturn]] void abort(void);
 

@@ -208,14 +208,17 @@ long long int strtoll(const char* restrict nptr, char** restrict endptr, int bas
 
 unsigned long int strtoul(const char* restrict nptr, char** restrict endptr, int base) {
     unsigned long int result = 0;
+    int negative = 0;
 
     // Skip leading whitespace
     while (*nptr == ' ' || *nptr == '\t' || *nptr == '\n' || *nptr == '\r' || *nptr == '\f' || *nptr == '\v') {
         nptr++;
     }
 
-    // Handle optional sign
-    if (*nptr == '+') {
+    if (*nptr == '-') {
+        negative = 1;
+        nptr++;
+    } else if (*nptr == '+') {
         nptr++;
     }
 
@@ -263,19 +266,22 @@ unsigned long int strtoul(const char* restrict nptr, char** restrict endptr, int
         *endptr = (char*)nptr;
     }
 
-    return result;
+    return negative ? (0UL - result) : result;
 }
 
 unsigned long long int strtoull(const char* restrict nptr, char** restrict endptr, int base) {
     unsigned long long int result = 0;
+    int negative = 0;
 
     // Skip leading whitespace
     while (*nptr == ' ' || *nptr == '\t' || *nptr == '\n' || *nptr == '\r' || *nptr == '\f' || *nptr == '\v') {
         nptr++;
     }
 
-    // Handle optional sign
-    if (*nptr == '+') {
+    if (*nptr == '-') {
+        negative = 1;
+        nptr++;
+    } else if (*nptr == '+') {
         nptr++;
     }
 
@@ -323,13 +329,51 @@ unsigned long long int strtoull(const char* restrict nptr, char** restrict endpt
         *endptr = (char*)nptr;
     }
 
-    return result;
+    return negative ? (0ULL - result) : result;
+}
+
+char* itoa(int value, char* str, int base) {
+    if (base < 2 || base > 36) {
+        str[0] = '\0';
+        return str;
+    }
+
+    char* ptr = str;
+    unsigned int num;
+
+    if (base == 10 && value < 0) {
+        *ptr++ = '-';
+        num = -(unsigned int)value;
+    } else {
+        num = (unsigned int)value;
+    }
+
+    // Convert number to string in reverse order
+    char* start = ptr;
+    do {
+        unsigned int digit = num % (unsigned int)base;
+        *ptr++ = (digit < 10) ? (char)('0' + digit) : (char)('a' + digit - 10);
+        num /= (unsigned int)base;
+    } while (num > 0);
+
+    *ptr = '\0';
+
+    // Reverse the string
+    char* end = ptr - 1;
+    while (start < end) {
+        char temp = *start;
+        *start++ = *end;
+        *end-- = temp;
+    }
+
+    return str;
 }
 
 [[noreturn]] void abort(void) {
-    // In a freestanding environment, we can simply enter an infinite loop
     while (1) {
+#if defined(__x86_64__)
         __asm__ volatile ("hlt");
+#endif
     }
 }
 
@@ -344,7 +388,7 @@ long int labs(long int j) {
 long long int llabs(long long int j) {
     return (j < 0) ? -j : j;
 }
-#if defined(__STDC_WANT_LIB_EXT1__)
+#if __STDC_LIB_EXT1__ && defined(__STDC_WANT_LIB_EXT1__)
 
 constraint_handler_t set_constraint_handler_s( constraint_handler_t handler ) {
     if (handler == NULL) {
